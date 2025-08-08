@@ -1,1 +1,1 @@
-web: cd trading-bot && python api.py
+web: python start.py
