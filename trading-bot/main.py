@@ -81,7 +81,7 @@ class TradingBot:
                 
                 # Historische Kerzendaten (24h)
                 klines = self.binance_client.get_historical_klines(
-                    symbol, Client.KLINE_INTERVAL_1HOUR, "24 hours ago UTC"
+                    symbol, KLINE_INTERVAL_1HOUR, "24 hours ago UTC"
                 )
                 
                 # Marktdaten in Supabase speichern
@@ -113,7 +113,7 @@ class TradingBot:
         try:
             # Letzten 50 Kerzendaten abrufen
             klines = self.binance_client.get_historical_klines(
-                symbol, Client.KLINE_INTERVAL_15MINUTE, "12 hours ago UTC"
+                symbol, KLINE_INTERVAL_15MINUTE, "12 hours ago UTC"
             )
             
             # Preise extrahieren

@@ -20,6 +20,10 @@ Dieses System besteht aus einem Python Trading Bot (Railway), einem Next.js Dash
 
 ## 🚀 Setup-Anleitung
 
+### 0. GitHub Projekt: https://github.com/YourSolutionsAI/your-tradinghub-solution.git 
+
+✅ ERLEDIGT
+
 ### 1. Binance API Setup
 
 #### Schritt 1: Binance Account erstellen
@@ -27,19 +31,25 @@ Dieses System besteht aus einem Python Trading Bot (Railway), einem Next.js Dash
 2. Aktivieren Sie 2FA (Zwei-Faktor-Authentifizierung)
 3. Verifizieren Sie Ihren Account
 
+✅ ERLEDIGT
+
 #### Schritt 2: API Keys erstellen
 1. Gehen Sie zu "API Management" in Ihren Account-Einstellungen
 2. Erstellen Sie einen neuen API Key
 3. **Wichtig**: Aktivieren Sie nur "Spot Trading" (nicht Futures)
 4. Notieren Sie sich:
-   - `API Key`
-   - `Secret Key`
+   - `API Key` QVF77fJKJSEQCgIDfw2HJ77WtIoer90ABvR15t89ECaKdiE8ewfNJ9F5NYpwZs2D
 
-#### Schritt 3: Testnet aktivieren (empfohlen für den Start)
+   - `Secret Key` G5EVKVicRAT7TLOwkNyqBzu63bBlJRi9AEmE1bxhWSaKvXBGntfHob0Uf0Ymtz2K
+✅ ERLEDIGT
+
+#### Schritt 3: Testnet aktivieren (empfohlen für den Start) <-- AMMERKUNG -- WIRD NICHT GENUTZT!!>
 1. Besuchen Sie [Binance Testnet](https://testnet.binance.vision/)
 2. Melden Sie sich mit Ihrem Binance Account an
 3. Erstellen Sie Testnet API Keys
 4. Laden Sie Testguthaben auf
+
+❌ WIRD NICHT GENTUZT
 
 ### 2. Supabase Setup
 
@@ -50,19 +60,25 @@ Dieses System besteht aus einem Python Trading Bot (Railway), einem Next.js Dash
 4. Wählen Sie einen Namen und ein sicheres Datenbankpasswort
 5. Wählen Sie eine Region (empfohlen: Europa für DSGVO-Konformität)
 
+✅ ERLEDIGT
+
 #### Schritt 2: Datenbank Schema einrichten
 1. Gehen Sie zum SQL Editor in Ihrem Supabase Dashboard
 2. Kopieren Sie den Inhalt von `database/schema.sql`
 3. Führen Sie das SQL-Script aus
 4. Überprüfen Sie, dass alle Tabellen erstellt wurden
 
+✅ ERLEDIGT
+
 #### Schritt 3: API Keys notieren
 Notieren Sie sich aus den Projekteinstellungen:
-- `Project URL` (z.B. https://xxxxx.supabase.co)
-- `Project API Key (anon public)`
-- `Project API Key (service_role)` - **Nur für den Bot!**
+- `Project URL` https://snemqjltnqflyfrmjlpj.supabase.co
+- `Project API Key (anon public)` eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuZW1xamx0bnFmbHlmcm1qbHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2ODE5ODQsImV4cCI6MjA3MDI1Nzk4NH0.51bZ3mq7uEuxO_N7daFK5S6eikAWjxzgatiTIvD5UQs
+- `Project API Key (service_role)` - **Nur für den Bot!** eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuZW1xamx0bnFmbHlmcm1qbHBqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDY4MTk4NCwiZXhwIjoyMDcwMjU3OTg0fQ.Sx62aDm4lzt943k9-cugGQxfZhHEiv0gcBT_P0b_6gI
 
-#### Schritt 4: Realtime aktivieren
+✅ ERLEDIGT
+
+#### Schritt 4: Realtime aktivieren <-- ANMERKUNG <-- FÜR SPÄTER IST AKTUELL NIOCH NICHT VERFÜGBAR AUF SUPABASE>
 1. Gehen Sie zu "Database" → "Replication"
 2. Aktivieren Sie Realtime für folgende Tabellen:
    - `bot_status`
@@ -70,12 +86,16 @@ Notieren Sie sich aus den Projekteinstellungen:
    - `trades`
    - `portfolio_snapshots`
 
+❌ WIRD NICHT GENUTZT
+
 ### 3. Railway Deployment (Trading Bot)
 
 #### Schritt 1: Railway Account erstellen
 1. Gehen Sie zu [Railway](https://railway.app)
 2. Melden Sie sich mit GitHub an
 3. Verifizieren Sie Ihren Account
+
+ ✅ERLEDIGT
 
 #### Schritt 2: Projekt deployen
 1. Klicken Sie auf "New Project"
