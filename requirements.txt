@@ -1,14 +1,28 @@
+# Core dependencies
+setuptools>=69.0.0
+
+# Trading and API
 python-binance==1.0.19
 supabase==2.3.4
 python-dotenv==1.0.0
 requests==2.31.0
-pandas==2.1.4
-numpy==1.24.3
+
+# Data processing - stable versions
+pandas==2.0.3
+numpy==1.25.2
+
+# Communication
 websocket-client==1.6.4
 schedule==1.2.0
 python-telegram-bot==20.7
+
+# Web framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.2
+
+# Database
 psycopg2-binary==2.9.9
+
+# Cache
 redis==5.0.1
