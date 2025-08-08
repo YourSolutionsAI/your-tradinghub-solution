@@ -35,8 +35,10 @@ class TradingBot:
         
         # Bot Konfiguration
         self.is_running = False
-        self.trading_pairs = ["BTCUSDT", "ETHUSDT", "ADAUSDT"]
-        self.balance_threshold = 0.001  # Mindestbalance für Trading
+        # Trading Pairs aus Environment Variable oder Standard-Werte
+        trading_pairs_env = os.getenv("TRADING_PAIRS", "BTCUSDT,ETHUSDT,ADAUSDT")
+        self.trading_pairs = [pair.strip() for pair in trading_pairs_env.split(",")]
+        self.balance_threshold = float(os.getenv("MIN_BALANCE_THRESHOLD", "0.001"))
         
     async def start_bot(self):
         """Startet den Trading Bot"""
@@ -287,6 +289,22 @@ class TradingBot:
             
         except Exception as e:
             logger.error(f"Fehler beim Error-Logging: {e}")
+    
+    def update_trading_pairs(self, new_pairs: List[str]):
+        """Aktualisiert die Trading Pairs zur Laufzeit"""
+        self.trading_pairs = new_pairs
+        logger.info(f"Trading Pairs aktualisiert: {', '.join(new_pairs)}")
+    
+    def get_available_symbols(self):
+        """Ruft alle verfügbaren Trading-Symbole von Binance ab"""
+        try:
+            exchange_info = self.binance_client.get_exchange_info()
+            symbols = [symbol['symbol'] for symbol in exchange_info['symbols'] 
+                      if symbol['status'] == 'TRADING' and symbol['symbol'].endswith('USDT')]
+            return sorted(symbols)
+        except Exception as e:
+            logger.error(f"Fehler beim Abrufen der verfügbaren Symbole: {e}")
+            return []
 
 async def main():
     """Hauptfunktion"""

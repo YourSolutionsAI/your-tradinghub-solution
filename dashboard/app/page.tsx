@@ -12,6 +12,7 @@ import {
   ChartBarIcon,
   ClockIcon
 } from '@heroicons/react/24/outline'
+import TradingPairsManager from './components/TradingPairsManager'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import toast from 'react-hot-toast'
 
@@ -159,8 +160,13 @@ export default function Dashboard() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Trading Bot Dashboard</h1>
-        <p className="text-gray-600">Überwachen Sie Ihren Binance Trading Bot in Echtzeit</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Trading Bot Dashboard</h1>
+            <p className="text-gray-600">Überwachen Sie Ihren Binance Trading Bot in Echtzeit</p>
+          </div>
+          <TradingPairsManager onUpdate={fetchDashboardData} />
+        </div>
       </div>
 
       {/* Status Cards */}

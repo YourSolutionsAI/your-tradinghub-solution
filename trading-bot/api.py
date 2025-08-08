@@ -365,6 +365,50 @@ async def get_performance_metrics():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Trading Pairs Management
+@app.get("/api/trading-pairs")
+async def get_current_trading_pairs():
+    """Aktuelle Trading Pairs abrufen"""
+    global bot_instance
+    if not bot_instance:
+        raise HTTPException(status_code=400, detail="Bot nicht initialisiert")
+    
+    return {
+        "current_pairs": bot_instance.trading_pairs,
+        "available_symbols": bot_instance.get_available_symbols()
+    }
+
+@app.put("/api/trading-pairs")
+async def update_trading_pairs(
+    pairs: List[str],
+    credentials: HTTPAuthorizationCredentials = Depends(verify_api_key)
+):
+    """Trading Pairs aktualisieren"""
+    global bot_instance
+    if not bot_instance:
+        raise HTTPException(status_code=400, detail="Bot nicht initialisiert")
+    
+    try:
+        # Validierung: Überprüfen ob alle Pairs existieren
+        available_symbols = bot_instance.get_available_symbols()
+        invalid_pairs = [pair for pair in pairs if pair not in available_symbols]
+        
+        if invalid_pairs:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Ungültige Trading Pairs: {', '.join(invalid_pairs)}"
+            )
+        
+        # Trading Pairs aktualisieren
+        bot_instance.update_trading_pairs(pairs)
+        
+        return {
+            "message": "Trading Pairs erfolgreich aktualisiert",
+            "new_pairs": pairs
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Startup Event
 @app.on_event("startup")
 async def startup_event():
