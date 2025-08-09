@@ -8,11 +8,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python-Dependencies installieren
-COPY requirements.txt .
+COPY trading-bot/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # App-Code kopieren
-COPY . .
+COPY trading-bot/. .
 
 # Port exposieren
 EXPOSE 8000
