@@ -2,24 +2,24 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System-Dependencies installieren
+# System dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Python-Dependencies installieren
-COPY trading-bot/requirements.txt .
+# Python dependencies
+COPY bot/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# App-Code kopieren
-COPY trading-bot/. .
+# App code
+COPY bot/ .
 
-# Port exposieren
+# Port
 EXPOSE 8000
 
-# Healthcheck
+# Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
 
-# App starten
+# Start API
 CMD ["python", "api.py"]
