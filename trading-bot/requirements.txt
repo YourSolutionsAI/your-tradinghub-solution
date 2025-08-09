@@ -1,6 +1,6 @@
 binance-connector==3.12.0
-# Fix für Supabase/httpx Proxy-Parameter-Inkompatibilität
-httpx==0.27.0
+# httpx Version kompatibel mit supabase 2.3.4
+httpx==0.25.2
 supabase==2.3.4
 python-dotenv==1.0.0
 requests==2.31.0
