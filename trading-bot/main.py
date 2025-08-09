@@ -6,8 +6,7 @@ from typing import Dict, List, Optional
 import json
 
 from dotenv import load_dotenv
-from binance.client import Client as BinanceClient
-from binance.enums import *
+from binance.spot import Spot as BinanceClient
 from supabase import create_client, Client as SupabaseClient
 import pandas as pd
 
@@ -20,12 +19,12 @@ load_dotenv()
 class TradingBot:
     def __init__(self):
         """Initialisierung des Trading Bots"""
-        # Binance Client – Live-Handel (kein Testnet)
+        # Binance Client – Live-Handel (binance-connector)
         try:
             api_key = os.getenv("BINANCE_API_KEY")
             api_secret = os.getenv("BINANCE_API_SECRET")
-            self.binance_client = BinanceClient(api_key, api_secret)
-            logger.info("Binance Client (LIVE) erfolgreich initialisiert")
+            self.binance_client = BinanceClient(api_key=api_key, api_secret=api_secret)
+            logger.info("Binance Client (LIVE, binance-connector) erfolgreich initialisiert")
         except Exception as e:
             logger.error(f"Binance Client Fehler: {e}")
             # Fallback abschalten? Für Stabilität belassen wir None und überspringen Market-Calls
@@ -86,13 +85,11 @@ class TradingBot:
         for symbol in self.trading_pairs:
             try:
                 # Aktuelle Preisdaten abrufen
-                ticker = self.binance_client.get_symbol_ticker(symbol=symbol)
+                ticker = self.binance_client.ticker_price(symbol)
                 price = float(ticker['price'])
                 
                 # Historische Kerzendaten (24h)
-                klines = self.binance_client.get_historical_klines(
-                    symbol, KLINE_INTERVAL_1HOUR, "24 hours ago UTC"
-                )
+                klines = self.binance_client.klines(symbol, interval="1h", limit=24)
                 
                 # Marktdaten in Supabase speichern
                 await self.save_market_data(symbol, price, klines)
@@ -122,9 +119,7 @@ class TradingBot:
         """Einfache Moving Average Strategie"""
         try:
             # Letzten 50 Kerzendaten abrufen
-            klines = self.binance_client.get_historical_klines(
-                symbol, KLINE_INTERVAL_15MINUTE, "12 hours ago UTC"
-            )
+            klines = self.binance_client.klines(symbol, interval="15m", limit=48)
             
             # Preise extrahieren
             prices = [float(kline[4]) for kline in klines]  # Schlusskurse
@@ -152,18 +147,15 @@ class TradingBot:
         """Führt eine Kauforder aus"""
         try:
             # Account-Balance prüfen
-            account = self.binance_client.get_account()
+            account = self.binance_client.account()
             usdt_balance = float([asset['free'] for asset in account['balances'] if asset['asset'] == 'USDT'][0])
             
             if usdt_balance > self.balance_threshold:
                 order_amount = min(usdt_balance * 0.1, strategy.get('max_order_size', 100))  # 10% der Balance oder max_order_size
                 
                 # Echte Order (LIVE)
-                order = self.binance_client.order_market_buy(
-                    symbol=symbol,
-                    quoteOrderQty=order_amount
-                )
-                await self.log_trade("BUY", symbol, order_amount, order['orderId'])
+                order = self.binance_client.new_order(symbol=symbol, side='BUY', type='MARKET', quoteOrderQty=order_amount)
+                await self.log_trade("BUY", symbol, order_amount, order.get('orderId', 'unknown'))
                     
         except Exception as e:
             logger.error(f"Fehler bei Kauforder für {symbol}: {e}")
@@ -172,17 +164,14 @@ class TradingBot:
         """Führt eine Verkaufsorder aus"""
         try:
             # Asset-Balance prüfen
-            account = self.binance_client.get_account()
+            account = self.binance_client.account()
             asset = symbol.replace('USDT', '')
             asset_balance = float([a['free'] for a in account['balances'] if a['asset'] == asset][0])
             
             if asset_balance > 0:
                 # Echte Order (LIVE)
-                order = self.binance_client.order_market_sell(
-                    symbol=symbol,
-                    quantity=asset_balance
-                )
-                await self.log_trade("SELL", symbol, asset_balance, order['orderId'])
+                order = self.binance_client.new_order(symbol=symbol, side='SELL', type='MARKET', quantity=asset_balance)
+                await self.log_trade("SELL", symbol, asset_balance, order.get('orderId', 'unknown'))
                     
         except Exception as e:
             logger.error(f"Fehler bei Verkaufsorder für {symbol}: {e}")
@@ -247,7 +236,7 @@ class TradingBot:
                     total_usdt += asset_data["balance"]
                 else:
                     try:
-                        ticker = self.binance_client.get_symbol_ticker(symbol=f"{asset_data['asset']}USDT")
+                        ticker = self.binance_client.ticker_price(f"{asset_data['asset']}USDT")
                         total_usdt += asset_data["balance"] * float(ticker['price'])
                     except:
                         pass  # Ignoriere Assets ohne USDT-Paar
@@ -296,8 +285,8 @@ class TradingBot:
     def get_available_symbols(self):
         """Ruft alle verfügbaren Trading-Symbole von Binance ab"""
         try:
-            exchange_info = self.binance_client.get_exchange_info()
-            symbols = [symbol['symbol'] for symbol in exchange_info['symbols'] 
+            exchange_info = self.binance_client.exchange_info()
+            symbols = [symbol['symbol'] for symbol in exchange_info['symbols']
                       if symbol['status'] == 'TRADING' and symbol['symbol'].endswith('USDT')]
             return sorted(symbols)
         except Exception as e:
