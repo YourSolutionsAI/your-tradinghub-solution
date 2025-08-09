@@ -21,11 +21,18 @@ class TradingBot:
     def __init__(self):
         """Initialisierung des Trading Bots"""
         # Binance Client
-        self.binance_client = BinanceClient(
-            api_key=os.getenv("BINANCE_API_KEY"),
-            api_secret=os.getenv("BINANCE_API_SECRET"),
-            testnet=os.getenv("BINANCE_TESTNET", "True").lower() == "true"
-        )
+        testnet_mode = os.getenv("BINANCE_TESTNET", "True").lower() == "true"
+        if testnet_mode:
+            self.binance_client = BinanceClient(
+                api_key=os.getenv("BINANCE_API_KEY"),
+                api_secret=os.getenv("BINANCE_API_SECRET"),
+                testnet=True
+            )
+        else:
+            self.binance_client = BinanceClient(
+                api_key=os.getenv("BINANCE_API_KEY"),
+                api_secret=os.getenv("BINANCE_API_SECRET")
+            )
         
         # Supabase Client
         self.supabase: SupabaseClient = create_client(
