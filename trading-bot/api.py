@@ -241,7 +241,7 @@ async def get_portfolio():
     
     try:
         # Aktuelles Portfolio aus Binance abrufen
-        account = bot_instance.binance_client.get_account()
+        account = bot_instance.binance_client.account()
         
         portfolio = {
             "balances": [],
@@ -272,8 +272,9 @@ async def get_market_data(symbol: str):
     
     try:
         # Aktuelle Daten von Binance
-        ticker = bot_instance.binance_client.get_symbol_ticker(symbol=symbol.upper())
-        stats = bot_instance.binance_client.get_ticker(symbol=symbol.upper())
+        ticker = bot_instance.binance_client.ticker_price(symbol.upper())
+        # Binance Connector hat keinen direkten 'get_ticker' für 24h – ersetze durch 'ticker_24hr'
+        stats = bot_instance.binance_client.ticker_24hr(symbol.upper())
         
         return {
             "symbol": symbol.upper(),

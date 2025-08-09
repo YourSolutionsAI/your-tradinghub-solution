@@ -27,14 +27,25 @@ class TradingBot:
             logger.info("Binance Client (LIVE, binance-connector) erfolgreich initialisiert")
         except Exception as e:
             logger.error(f"Binance Client Fehler: {e}")
-            # Fallback abschalten? Für Stabilität belassen wir None und überspringen Market-Calls
             self.binance_client = None
         
-        # Supabase Client
-        self.supabase: SupabaseClient = create_client(
-            os.getenv("SUPABASE_URL"),
-            os.getenv("SUPABASE_ANON_KEY")
-        )
+        # Supabase Client (robust gegen Version-/Proxy-Probleme initialisieren)
+        self.supabase: Optional[SupabaseClient] = None
+        try:
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_key = os.getenv("SUPABASE_ANON_KEY")
+            if supabase_url and supabase_key:
+                self.supabase = create_client(supabase_url, supabase_key)
+                logger.info("Supabase Client erfolgreich initialisiert")
+            else:
+                logger.warning("Supabase Umgebungsvariablen fehlen – Supabase wird deaktiviert gestartet")
+        except TypeError as type_error:
+            # Häufige Ursache: httpx-Version akzeptiert 'proxy' nicht
+            logger.error(f"Supabase Client Fehler (TypeError): {type_error} – starte ohne Supabase")
+            self.supabase = None
+        except Exception as e:
+            logger.error(f"Supabase Client Fehler: {e} – starte ohne Supabase")
+            self.supabase = None
         
         # Bot Konfiguration
         self.is_running = False
@@ -213,7 +224,7 @@ class TradingBot:
     async def update_portfolio_status(self):
         """Aktualisiert den Portfolio-Status"""
         try:
-            account = self.binance_client.get_account()
+            account = self.binance_client.account()
             
             portfolio_data = {
                 "timestamp": datetime.utcnow().isoformat(),
@@ -244,7 +255,8 @@ class TradingBot:
             portfolio_data["total_balance_usdt"] = total_usdt
             
             # In Supabase speichern
-            self.supabase.table("portfolio_snapshots").insert(portfolio_data).execute()
+            if self.supabase:
+                self.supabase.table("portfolio_snapshots").insert(portfolio_data).execute()
             
         except Exception as e:
             logger.error(f"Fehler beim Portfolio-Update: {e}")
@@ -258,7 +270,8 @@ class TradingBot:
                 "last_heartbeat": datetime.utcnow().isoformat()
             }
             
-            self.supabase.table("bot_status").upsert(status_data).execute()
+            if self.supabase:
+                self.supabase.table("bot_status").upsert(status_data).execute()
             
         except Exception as e:
             logger.error(f"Fehler beim Status-Update: {e}")
@@ -272,7 +285,8 @@ class TradingBot:
                 "component": "trading_bot"
             }
             
-            self.supabase.table("error_logs").insert(error_log).execute()
+            if self.supabase:
+                self.supabase.table("error_logs").insert(error_log).execute()
             
         except Exception as e:
             logger.error(f"Fehler beim Error-Logging: {e}")
