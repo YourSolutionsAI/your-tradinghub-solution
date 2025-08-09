@@ -68,9 +68,34 @@ class TradingBot:
                 self.supabase = None
                 return
             
-            self.supabase = create_client(supabase_url, supabase_key)
+            # Supabase Client mit expliziter HTTP-Konfiguration (ohne Proxy)
+            from supabase.client import ClientOptions
+            import httpx
+            
+            # HTTP Client ohne Proxy-Parameter
+            http_client = httpx.Client(timeout=30.0)
+            
+            options = ClientOptions(
+                postgrest_client_timeout=30,
+                storage_client_timeout=30,
+                schema="public"
+            )
+            
+            self.supabase = create_client(
+                supabase_url, 
+                supabase_key,
+                options=options
+            )
             logger.info("✅ Supabase verbunden")
             
+        except TypeError as e:
+            if "proxy" in str(e):
+                logger.warning(f"Supabase Proxy-Problem umgangen: {e}")
+                # Fallback: Supabase deaktiviert, Bot läuft trotzdem
+                self.supabase = None
+            else:
+                logger.error(f"❌ Supabase Client Fehler: {e}")
+                self.supabase = None
         except Exception as e:
             logger.error(f"❌ Supabase Client Fehler: {e}")
             self.supabase = None

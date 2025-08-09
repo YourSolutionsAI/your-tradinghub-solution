@@ -10,10 +10,38 @@ from datetime import datetime
 
 from trading_bot import TradingBot
 
+# Lifespan Events (Modern FastAPI) - Definition vor App
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Modern FastAPI Lifespan Events"""
+    global bot_instance
+    
+    # Startup
+    logger.info("🚀 Trading Bot API gestartet")
+    try:
+        bot_instance = TradingBot()
+        logger.info("✅ Trading Bot bereit für Live Trading")
+    except Exception as e:
+        logger.error(f"❌ Bot Initialisierung fehlgeschlagen: {e}")
+    
+    yield
+    
+    # Shutdown
+    global bot_task
+    logger.info("🛑 API wird heruntergefahren")
+    if bot_instance and bot_instance.is_running:
+        await bot_instance.stop_trading()
+    if bot_task:
+        bot_task.cancel()
+
+# App mit Lifespan
 app = FastAPI(
     title="Live Trading Bot API",
     description="Professional Trading Bot für Binance Live Trading",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 # CORS für Frontend
@@ -202,31 +230,7 @@ async def update_trading_pairs(
         logger.error(f"Trading Pairs Update Fehler: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Startup
-@app.on_event("startup")
-async def startup_event():
-    """Bot bei API-Start initialisieren"""
-    global bot_instance
-    logger.info("🚀 Trading Bot API gestartet")
-    
-    try:
-        bot_instance = TradingBot()
-        logger.info("✅ Trading Bot bereit für Live Trading")
-    except Exception as e:
-        logger.error(f"❌ Bot Initialisierung fehlgeschlagen: {e}")
 
-# Shutdown
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Bot sauber beenden"""
-    global bot_instance, bot_task
-    logger.info("🛑 API wird heruntergefahren")
-    
-    if bot_instance and bot_instance.is_running:
-        await bot_instance.stop_trading()
-    
-    if bot_task:
-        bot_task.cancel()
 
 # Main
 if __name__ == "__main__":
