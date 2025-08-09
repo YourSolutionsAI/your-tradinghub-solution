@@ -20,19 +20,16 @@ load_dotenv()
 class TradingBot:
     def __init__(self):
         """Initialisierung des Trading Bots"""
-        # Binance Client
-        testnet_mode = os.getenv("BINANCE_TESTNET", "True").lower() == "true"
-        if testnet_mode:
-            self.binance_client = BinanceClient(
-                api_key=os.getenv("BINANCE_API_KEY"),
-                api_secret=os.getenv("BINANCE_API_SECRET"),
-                testnet=True
-            )
-        else:
-            self.binance_client = BinanceClient(
-                api_key=os.getenv("BINANCE_API_KEY"),
-                api_secret=os.getenv("BINANCE_API_SECRET")
-            )
+        # Binance Client – Live-Handel (kein Testnet)
+        try:
+            api_key = os.getenv("BINANCE_API_KEY")
+            api_secret = os.getenv("BINANCE_API_SECRET")
+            self.binance_client = BinanceClient(api_key, api_secret)
+            logger.info("Binance Client (LIVE) erfolgreich initialisiert")
+        except Exception as e:
+            logger.error(f"Binance Client Fehler: {e}")
+            # Fallback abschalten? Für Stabilität belassen wir None und überspringen Market-Calls
+            self.binance_client = None
         
         # Supabase Client
         self.supabase: SupabaseClient = create_client(
@@ -82,6 +79,10 @@ class TradingBot:
     
     async def analyze_market(self):
         """Analysiert Marktdaten für alle Trading-Paare"""
+        if not self.binance_client:
+            logger.warning("Binance Client nicht verfügbar - überspringe Marktanalyse")
+            return
+            
         for symbol in self.trading_pairs:
             try:
                 # Aktuelle Preisdaten abrufen
@@ -157,17 +158,12 @@ class TradingBot:
             if usdt_balance > self.balance_threshold:
                 order_amount = min(usdt_balance * 0.1, strategy.get('max_order_size', 100))  # 10% der Balance oder max_order_size
                 
-                # Testorder (im Testnet)
-                if os.getenv("BINANCE_TESTNET", "True").lower() == "true":
-                    logger.info(f"TESTORDER - Kaufe {symbol} für ${order_amount}")
-                    await self.log_trade("BUY", symbol, order_amount, "test_order")
-                else:
-                    # Echte Order
-                    order = self.binance_client.order_market_buy(
-                        symbol=symbol,
-                        quoteOrderQty=order_amount
-                    )
-                    await self.log_trade("BUY", symbol, order_amount, order['orderId'])
+                # Echte Order (LIVE)
+                order = self.binance_client.order_market_buy(
+                    symbol=symbol,
+                    quoteOrderQty=order_amount
+                )
+                await self.log_trade("BUY", symbol, order_amount, order['orderId'])
                     
         except Exception as e:
             logger.error(f"Fehler bei Kauforder für {symbol}: {e}")
@@ -181,17 +177,12 @@ class TradingBot:
             asset_balance = float([a['free'] for a in account['balances'] if a['asset'] == asset][0])
             
             if asset_balance > 0:
-                # Testorder (im Testnet)
-                if os.getenv("BINANCE_TESTNET", "True").lower() == "true":
-                    logger.info(f"TESTORDER - Verkaufe {asset_balance} {asset}")
-                    await self.log_trade("SELL", symbol, asset_balance, "test_order")
-                else:
-                    # Echte Order
-                    order = self.binance_client.order_market_sell(
-                        symbol=symbol,
-                        quantity=asset_balance
-                    )
-                    await self.log_trade("SELL", symbol, asset_balance, order['orderId'])
+                # Echte Order (LIVE)
+                order = self.binance_client.order_market_sell(
+                    symbol=symbol,
+                    quantity=asset_balance
+                )
+                await self.log_trade("SELL", symbol, asset_balance, order['orderId'])
                     
         except Exception as e:
             logger.error(f"Fehler bei Verkaufsorder für {symbol}: {e}")

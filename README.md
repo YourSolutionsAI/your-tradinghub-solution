@@ -8,7 +8,7 @@ Dieses System besteht aus einem Python Trading Bot (Railway), einem Next.js Dash
 - **Trading Bot**: Python-basiert, läuft persistent auf Railway
 - **Dashboard**: Next.js React App, deployed auf Vercel
 - **Datenbank**: PostgreSQL mit Supabase (Auth, Realtime, API)
-- **Börse**: Binance (Testnet und Live)
+- **Börse**: Binance (Live)
 
 ### Funktionen
 - ✅ Automatisiertes Trading basierend auf verschiedenen Strategien
@@ -48,13 +48,8 @@ git push origin main
    - `Secret Key` G5EVKVicRAT7TLOwkNyqBzu63bBlJRi9AEmE1bxhWSaKvXBGntfHob0Uf0Ymtz2K
 ✅ ERLEDIGT
 
-#### Schritt 3: Testnet aktivieren (empfohlen für den Start) <-- AMMERKUNG -- WIRD NICHT GENUTZT!!>
-1. Besuchen Sie [Binance Testnet](https://testnet.binance.vision/)
-2. Melden Sie sich mit Ihrem Binance Account an
-3. Erstellen Sie Testnet API Keys
-4. Laden Sie Testguthaben auf
-
-❌ WIRD NICHT GENTUZT
+#### Hinweis
+Es wird ausschließlich mit Live-Binance-APIs gearbeitet. Verwenden Sie Ihre Live-Spot-API-Keys mit deaktiviertem Futures-Handel. Setzen Sie konservative Limits und testen Sie mit kleinen Beträgen.
 
 ### 2. Supabase Setup
 
@@ -115,10 +110,9 @@ Notieren Sie sich aus den Projekteinstellungen:
 Fügen Sie folgende Environment Variables hinzu:
 
 ```bash
-# Binance API
+# Binance API (LIVE)
 BINANCE_API_KEY=QVF77fJKJSEQCgIDfw2HJ77WtIoer90ABvR15t89ECaKdiE8ewfNJ9F5NYpwZs2D
 BINANCE_API_SECRET=G5EVKVicRAT7TLOwkNyqBzu63bBlJRi9AEmE1bxhWSaKvXBGntfHob0Uf0Ymtz2K
-BINANCE_TESTNET=false
 
 # Supabase
 SUPABASE_URL=https://snemqjltnqflyfrmjlpj.supabase.co
@@ -233,7 +227,7 @@ npm run dev
    - Coins aus Dropdown auswählen
    - **FERTIG!** → Sofort aktiv, kein Neustart nötig!
 
-2. **Environment Variable** (nur Startwerte):
+2. **Environment Variable** (Startwerte, später im Dashboard änderbar):
    ```bash
    TRADING_PAIRS=BTCUSDT,ETHUSDT,ADAUSDT  # Nur DEFAULT beim ersten Start!
    ```
@@ -317,11 +311,9 @@ TRADING_PAIRS=BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,ADAUSDT,XRPUSDT,DOGEUSDT,AVAXUSDT,
 
 ### API Keys
 - **NIEMALS** API Keys in Code committen
-- Verwenden Sie verschiedene Keys für Testnet und Live-Trading
 - Rotieren Sie Keys regelmäßig
 
 ### Bot-Sicherheit
-- Starten Sie immer im Testnet-Modus
 - Setzen Sie niedrige Order-Limits
 - Überwachen Sie den Bot regelmäßig
 - Implementieren Sie Stop-Loss-Mechanismen
@@ -348,6 +340,8 @@ git push origin main
 ### Datenbank Migrations
 - Führen Sie Schema-Änderungen über Supabase SQL Editor aus
 - Erstellen Sie Backups vor größeren Änderungen
+
+WWW
 
 ## 🛠️ Troubleshooting
 

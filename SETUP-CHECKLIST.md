@@ -4,15 +4,10 @@ Folgen Sie dieser Checkliste Schritt für Schritt, um Ihr Trading Bot System vol
 
 ## ✅ Phase 1: Account-Erstellung und Vorbereitung
 
-### 🔗 Binance Setup
+### 🔗 Binance Setup (LIVE)
 - [ ] Binance Account erstellt und verifiziert
 - [ ] 2FA aktiviert
-- [ ] Testnet Account erstellt: https://testnet.binance.vision/
-- [ ] Testnet API Keys generiert:
-  - [ ] API Key notiert: `___________________________`
-  - [ ] Secret Key notiert: `___________________________`
-- [ ] Testguthaben aufgeladen
-- [ ] Live API Keys erstellt (für später):
+- [ ] Live API Keys erstellt:
   - [ ] API Key notiert: `___________________________`
   - [ ] Secret Key notiert: `___________________________`
 
@@ -52,7 +47,7 @@ Folgen Sie dieser Checkliste Schritt für Schritt, um Ihr Trading Bot System vol
   - [ ] `notifications`
   - [ ] `performance_metrics`
 
-### 🔄 Realtime aktivieren
+### 🔄 Realtime aktivieren (optional für Live-Updates)
 - [ ] Database → Replication geöffnet
 - [ ] Realtime aktiviert für:
   - [ ] `bot_status`
@@ -150,7 +145,6 @@ BOT_API_KEY=Ihr_Super_Sicherer_API_Key_2024
 
 ### 🔒 Sicherheits-Check
 - [ ] Alle API Keys sind sicher gespeichert
-- [ ] `BINANCE_TESTNET=true` gesetzt
 - [ ] RLS-Policies in Supabase aktiv
 - [ ] Starke API-Passwörter verwendet
 
@@ -175,10 +169,9 @@ BOT_API_KEY=Ihr_Super_Sicherer_API_Key_2024
 - [ ] Niedrige Order-Limits gesetzt
 - [ ] Stop-Loss-Mechanismen implementiert
 
-### 🔄 Environment Update
+### 🔄 Environment Hinweise
 ```bash
-# In Railway Environment Variables ändern:
-BINANCE_TESTNET=false
+# Railway Environment Variables (LIVE):
 BINANCE_API_KEY=ihr_live_api_key
 BINANCE_API_SECRET=ihr_live_secret_key
 MAX_ORDER_SIZE=50  # Niedrig halten!
@@ -196,7 +189,6 @@ MAX_ORDER_SIZE=50  # Niedrig halten!
 - [ ] API Keys korrekt?
 - [ ] Supabase-Verbindung ok?
 - [ ] Railway Logs überprüft?
-- [ ] Testnet-Guthaben vorhanden?
 
 ### Dashboard zeigt keine Daten
 - [ ] Supabase RLS-Policies überprüft?
